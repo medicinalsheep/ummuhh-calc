@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ummuhh-calc</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --text: #212529;
+      --display: #343a40;
+      --display-text: #fff;
+      --btn-bg: #e9ecef;
+      --btn-hover: #dee2e6;
+      --operator: #fd7e14;
+      --equal: #28a745;
+      --clear: #dc3545;
+    }
+    [data-theme="dark"] {
+      --bg: #212529;
+      --text: #f8f9fa;
+      --display: #495057;
+      --display-text: #fff;
+      --btn-bg: #343a40;
+      --btn-hover: #495057;
+      --operator: #fd7e14;
+      --equal: #2ecc71;
+      --clear: #e74c3c;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    h1 {
+      margin: 0.8rem 0;
+      font-size: 2.1rem;
+    }
+    #calculator {
+      width: 100%;
+      max-width: 380px;
+      background: var(--display);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    #display {
+      width: 100%;
+      height: 80px;
+      background: var(--display);
+      color: var(--display-text);
+      font-size: 2.4rem;
+      text-align: right;
+      padding: 0 12px;
+      border: none;
+      border-radius: 8px;
+      box-sizing: border-box;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    #expression {
+      font-size: 1.1rem;
+      height: 28px;
+      opacity: 0.8;
+      text-align: right;
+      padding-right: 12px;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 1rem;
+    }
+    button {
+      padding: 1.1rem;
+      font-size: 1.4rem;
+      border: none;
+      border-radius: 10px;
+      background: var(--btn-bg);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    button:hover { background: var(--btn-hover); transform: scale(1.04); }
+    button.operator { background: var(--operator); color: white; }
+    button#equals { background: var(--equal); color: white; grid-column: span 2; }
+    button#clear { background: var(--clear); color: white; }
+    #history {
+      margin-top: 1.5rem;
+      width: 100%;
+      max-width: 380px;
+      max-height: 180px;
+      overflow-y: auto;
+      font-size: 0.95rem;
+      opacity: 0.9;
+      padding: 0.5rem;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.07);
+    }
+    #history div { margin: 0.35rem 0; }
+    #theme-toggle {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      border-radius: 8px;
+    }
+    footer {
+      margin-top: auto;
+      padding: 1.5rem 0;
+      font-size: 0.9rem;
+      opacity: 0.7;
+      text-align: center;
+    }
+    @media (max-width: 500px) {
+      h1 { font-size: 1.8rem; }
+      #display { font-size: 2rem; }
+      button { font-size: 1.25rem; padding: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <button id="theme-toggle">Dark Mode</button>
+
+  <h1>ummuhh-calc</h1>
+
+  <div id="calculator">
+    <div id="expression"></div>
+    <input type="text" id="display" readonly value="0" aria-label="Calculation result" />
+    
+    <div class="buttons">
+      <button onclick="append('sin(')">sin</button>
+      <button onclick="append('cos(')">cos</button>
+      <button onclick="append('tan(')">tan</button>
+      <button onclick="append('log(')">log</button>
+      <button onclick="append('ln(')">ln</button>
+
+      <button onclick="append('(')">(</button>
+      <button onclick="append(')')">)</button>
+      <button onclick="append('^')">^</button>
+      <button onclick="append('sqrt(')">√</button>
+      <button onclick="append('π')">π</button>
+
+      <button onclick="append('7')">7</button>
+      <button onclick="append('8')">8</button>
+      <button onclick="append('9')">9</button>
+      <button class="operator" onclick="append('/')">÷</button>
+      <button onclick="append('e')">e</button>
+
+      <button onclick="append('4')">4</button>
+      <button onclick="append('5')">5</button>
+      <button onclick="append('6')">6</button>
+      <button class="operator" onclick="append('*')">×</button>
+      <button onclick="append('Ans')">Ans</button>
+
+      <button onclick="append('1')">1</button>
+      <button onclick="append('2')">2</button>
+      <button onclick="append('3')">3</button>
+      <button class="operator" onclick="append('-')">-</button>
+      <button id="backspace" onclick="backspace()">←</button>
+
+      <button onclick="append('0')">0</button>
+      <button onclick="append('.')">.</button>
+      <button onclick="clearAll()" id="clear">C</button>
+      <button class="operator" onclick="append('+')">+</button>
+      <button id="equals" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <div id="history">
+    <strong>History</strong>
+    <!-- entries added here -->
+  </div>
+
+  <footer>
+    <p>View page source → see full <strong>anti-fallacy / error-checking guidance</strong> for AI-assisted use</p>
+  </footer>
+
+<!-- 
+SYSTEM PROMPT FOR AI USAGE OF ummuhh-calc (copy this entire block when using the calculator via AI)
+
+You are ummuhh-calc, a brutally honest, precision-focused numerical reasoning engine.
+When a user gives you a calculation, equation, unit conversion, percentage, probability, 
+statistic, financial figure, measurement problem, or any numerical query:
+
+Core rules — never break these:
+1. Compute with maximum accuracy possible given the input. Use exact fractions when meaningful.
+2. Show the final numeric result FIRST in large bold font, then explain step-by-step.
+3. Always state the exact assumptions you are making (base-10? degrees/radians? compound vs simple interest? population vs sample std dev? etc.).
+4. Flag every common category of error or fallacy that could plausibly apply to this kind of calculation:
+   • Division by zero or near-zero → scream about instability
+   • Rounding / floating-point precision loss → warn when >4–5 decimals matter
+   • Spurious precision → do not report 12 decimals on a 2-significant-figure input
+   • Correlation/causation confusion (especially stats, A/B tests, medical/financial numbers)
+   • Base-rate neglect / base-rate fallacy
+   • Gambler's fallacy, hot-hand fallacy
+   • Availability heuristic distorting risk estimates
+   • Small sample overconfidence (n<30 especially dangerous)
+   • Simpson's paradox potential in aggregated data
+   • Unit mismatch / dimensional analysis failure
+   • Confusing absolute vs relative change / percentage-point vs percent
+   • Survivorship bias in historical/financial data
+   • Overfitting in curve-fitting or regression examples
+   • Multiple comparisons / p-hacking risk in stats
+   • Extrapolation far outside data range
+5. If the number looks like it could be misinterpreted in real life (money, medicine, voting, risk), 
+   add an extra warning paragraph: "In real-world context X this number can be dangerous if used Y way."
+6. Format output for clarity:
+   Result: **42**  
+   Steps: 1. … 2. …  
+   Warnings: • floating-point artifact possible • assumes …
+7. If input is ambiguous, ask clarifying questions instead of guessing.
+8. When possible, provide alternative interpretations / sensitivity analysis (what if interest is monthly vs annual? what if confidence level 90% vs 95%?).
+9. Never lie about precision, never add fake significant figures, never pretend a rough estimate is exact.
+
+This calculator lives at: https://medicinalsheep.github.io/ummuhh-calc/  (update this URL after you deploy)
+Use this prompt + the live calculator page together to give truthful, fallacy-resistant numerical answers.
+-->
+
+  <script>
+    const display = document.getElementById('display');
+    const exprLine = document.getElementById('expression');
+    const historyDiv = document.getElementById('history');
+    let current = '0';
+    let expression = '';
+    let lastResult = null;
+    const MAX_HISTORY = 10;
+
+    // Theme
+    const toggle = document.getElementById('theme-toggle');
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      toggle.textContent = 'Light Mode';
+    }
+    toggle.onclick = () => {
+      if (document.documentElement.getAttribute('data-theme') === 'dark') {
+        document.documentElement.removeAttribute('data-theme');
+        toggle.textContent = 'Dark Mode';
+        localStorage.setItem('theme', 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        toggle.textContent = 'Light Mode';
+        localStorage.setItem('theme', 'dark');
+      }
+    };
+
+    function updateDisplay() {
+      display.value = current || '0';
+      exprLine.textContent = expression || '';
+    }
+
+    function append(val) {
+      if (current === '0' && !['+', '-', '*', '/', '^', ')'].includes(val)) {
+        current = val;
+      } else {
+        current += val;
+      }
+      expression += val;
+      updateDisplay();
+    }
+
+    function clearAll() {
+      current = '0';
+      expression = '';
+      updateDisplay();
+    }
+
+    function backspace() {
+      if (current.length > 1) {
+        current = current.slice(0, -1);
+      } else {
+        current = '0';
+      }
+      expression = expression.slice(0, -1);
+      updateDisplay();
+    }
+
+    function calculate() {
+      try {
+        let evalExpr = expression
+          .replace(/π/g, 'Math.PI')
+          .replace(/e/g, 'Math.E')
+          .replace(/\^/g, '**')
+          .replace(/sqrt\(/g, 'Math.sqrt(')
+          .replace(/log\(/g, 'Math.log10(')
+          .replace(/ln\(/g, 'Math.log(')
+          .replace(/sin\(/g, 'Math.sin(')
+          .replace(/cos\(/g, 'Math.cos(')
+          .replace(/tan\(/g, 'Math.tan(')
+          .replace(/Ans/g, lastResult !== null ? lastResult : '0');
+
+        // Very basic safety — block dangerous patterns
+        if (/[^\d\s\+\-\*\/\(\)\.\^eπsqrtloglntancosAns]/.test(expression)) {
+          throw new Error("Invalid characters");
+        }
+
+        const result = eval(evalExpr); // note: used only after sanitization attempt
+
+        const niceResult = Number.isInteger(result) ? result : Number(result.toFixed(10));
+        current = niceResult.toString();
+        lastResult = niceResult;
+
+        addToHistory(`${expression} = ${niceResult}`);
+        expression = current;
+        updateDisplay();
+      } catch (err) {
+        current = 'Error';
+        addToHistory(`${expression} → Error: ${err.message}`);
+        updateDisplay();
+        setTimeout(clearAll, 1800);
+      }
+    }
+
+    function addToHistory(entry) {
+      const p = document.createElement('div');
+      p.textContent = entry;
+      historyDiv.appendChild(p);
+      if (historyDiv.children.length > MAX_HISTORY + 1) {
+        historyDiv.removeChild(historyDiv.children[1]);
+      }
+      historyDiv.scrollTop = historyDiv.scrollHeight;
+    }
+
+    // Keyboard support
+    document.addEventListener('keydown', e => {
+      if (e.key >= '0' && e.key <= '9' || e.key === '.') append(e.key);
+      else if (e.key === '+') append('+');
+      else if (e.key === '-') append('-');
+      else if (e.key === '*') append('*');
+      else if (e.key === '/') append('/');
+      else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); calculate(); }
+      else if (e.key === 'Backspace') backspace();
+      else if (e.key === 'Escape') clearAll();
+      else if (e.key === '^') append('^');
+      else if (e.key === '(') append('(');
+      else if (e.key === ')') append(')');
+    });
+
+    updateDisplay();
+  </script>
+</body>
+</html>
