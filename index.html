@@ -15,6 +15,7 @@
       --operator: #fd7e14;
       --equal: #28a745;
       --clear: #dc3545;
+      --func: #6f42c1;
     }
     [data-theme="dark"] {
       --bg: #212529;
@@ -26,6 +27,7 @@
       --operator: #fd7e14;
       --equal: #2ecc71;
       --clear: #e74c3c;
+      --func: #9f7aea;
     }
     body {
       margin: 0;
@@ -39,13 +41,10 @@
       padding: 1rem;
       box-sizing: border-box;
     }
-    h1 {
-      margin: 0.8rem 0;
-      font-size: 2.1rem;
-    }
+    h1 { margin: 0.8rem 0; font-size: 2.1rem; }
     #calculator {
       width: 100%;
-      max-width: 380px;
+      max-width: 400px;
       background: var(--display);
       border-radius: 12px;
       padding: 1rem;
@@ -65,13 +64,7 @@
       overflow: hidden;
       white-space: nowrap;
     }
-    #expression {
-      font-size: 1.1rem;
-      height: 28px;
-      opacity: 0.8;
-      text-align: right;
-      padding-right: 12px;
-    }
+    #expression { font-size: 1.1rem; height: 28px; opacity: 0.8; text-align: right; padding-right: 12px; }
     .buttons {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -80,7 +73,7 @@
     }
     button {
       padding: 1.1rem;
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       border: none;
       border-radius: 10px;
       background: var(--btn-bg);
@@ -90,13 +83,14 @@
     }
     button:hover { background: var(--btn-hover); transform: scale(1.04); }
     button.operator { background: var(--operator); color: white; }
+    button.func { background: var(--func); color: white; }
     button#equals { background: var(--equal); color: white; grid-column: span 2; }
     button#clear { background: var(--clear); color: white; }
     #history {
       margin-top: 1.5rem;
       width: 100%;
-      max-width: 380px;
-      max-height: 180px;
+      max-width: 400px;
+      max-height: 200px;
       overflow-y: auto;
       font-size: 0.95rem;
       opacity: 0.9;
@@ -105,14 +99,15 @@
       background: rgba(0,0,0,0.07);
     }
     #history div { margin: 0.35rem 0; }
-    #theme-toggle {
+    #theme-toggle, #angle-mode {
       position: absolute;
       top: 1rem;
-      right: 1rem;
       padding: 0.6rem 1rem;
       font-size: 1rem;
       border-radius: 8px;
     }
+    #theme-toggle { right: 1rem; }
+    #angle-mode  { right: 110px; background: var(--func); color: white; }
     footer {
       margin-top: auto;
       padding: 1.5rem 0;
@@ -123,13 +118,14 @@
     @media (max-width: 500px) {
       h1 { font-size: 1.8rem; }
       #display { font-size: 2rem; }
-      button { font-size: 1.25rem; padding: 0.95rem; }
+      button { font-size: 1.2rem; padding: 0.9rem; }
     }
   </style>
 </head>
 <body>
 
   <button id="theme-toggle">Dark Mode</button>
+  <button id="angle-mode">Radians</button>
 
   <h1>ummuhh-calc</h1>
 
@@ -138,92 +134,111 @@
     <input type="text" id="display" readonly value="0" aria-label="Calculation result" />
     
     <div class="buttons">
-      <button onclick="append('sin(')">sin</button>
-      <button onclick="append('cos(')">cos</button>
-      <button onclick="append('tan(')">tan</button>
-      <button onclick="append('log(')">log</button>
-      <button onclick="append('ln(')">ln</button>
+      <!-- Row 1 -->
+      <button class="func" onclick="append('sin(')">sin</button>
+      <button class="func" onclick="append('cos(')">cos</button>
+      <button class="func" onclick="append('tan(')">tan</button>
+      <button class="func" onclick="append('log(')">log₁₀</button>
+      <button class="func" onclick="append('ln(')">ln</button>
 
+      <!-- Row 2 -->
       <button onclick="append('(')">(</button>
       <button onclick="append(')')">)</button>
       <button onclick="append('^')">^</button>
-      <button onclick="append('sqrt(')">√</button>
+      <button class="func" onclick="append('sqrt(')">√</button>
       <button onclick="append('π')">π</button>
 
+      <!-- Row 3 -->
       <button onclick="append('7')">7</button>
       <button onclick="append('8')">8</button>
       <button onclick="append('9')">9</button>
       <button class="operator" onclick="append('/')">÷</button>
       <button onclick="append('e')">e</button>
 
+      <!-- Row 4 -->
       <button onclick="append('4')">4</button>
       <button onclick="append('5')">5</button>
       <button onclick="append('6')">6</button>
       <button class="operator" onclick="append('*')">×</button>
       <button onclick="append('Ans')">Ans</button>
 
+      <!-- Row 5 -->
       <button onclick="append('1')">1</button>
       <button onclick="append('2')">2</button>
       <button onclick="append('3')">3</button>
       <button class="operator" onclick="append('-')">-</button>
       <button id="backspace" onclick="backspace()">←</button>
 
+      <!-- Row 6 -->
       <button onclick="append('0')">0</button>
       <button onclick="append('.')">.</button>
       <button onclick="clearAll()" id="clear">C</button>
       <button class="operator" onclick="append('+')">+</button>
       <button id="equals" onclick="calculate()">=</button>
+
+      <!-- Row 7 - Stats & extra -->
+      <button class="func" onclick="append('!')">n!</button>
+      <button class="func" onclick="append('C(')">C(n,k)</button>
+      <button class="func" onclick="append('P(')">P(n,k)</button>
+      <button class="func" onclick="append('mean(')">mean</button>
+      <button class="func" onclick="append('std(')">std</button>
     </div>
   </div>
 
   <div id="history">
     <strong>History</strong>
-    <!-- entries added here -->
   </div>
 
   <footer>
-    <p>View page source → see full <strong>anti-fallacy / error-checking guidance</strong> for AI-assisted use</p>
+    <p>View page source → see full <strong>AI guidance placeholder</strong> (update when ready)</p>
   </footer>
 
 <!-- 
-SYSTEM PROMPT FOR AI USAGE OF ummuhh-calc (copy this entire block when using the calculator via AI)
+SYSTEM PROMPT PLACEHOLDER FOR AI USAGE OF ummuhh-calc
+──────────────────────────────────────────────────────────────
+You are ummuhh-calc, a brutally honest, precision-focused numerical reasoning engine designed to deliver accurate calculations while rigorously identifying and mitigating errors, logical fallacies, and cognitive biases. Your primary role is to process any numerical query—such as arithmetic, equations, unit conversions, percentages, probabilities, statistics, financial figures, measurements, or scientific computations—using the ummuhh-calc tool (hosted at https://medicinalsheep.github.io/ummuhh-calc/) as a reference for validation where possible. For advanced statistical or computational needs, integrate Python stats libraries (e.g., scipy, statsmodels, numpy, pandas) via available code execution environments to perform and verify calculations. Always prioritize truthfulness, transparency, and user safety over convenience or optimism.
+Core Rules — Never Break These:
 
-You are ummuhh-calc, a brutally honest, precision-focused numerical reasoning engine.
-When a user gives you a calculation, equation, unit conversion, percentage, probability, 
-statistic, financial figure, measurement problem, or any numerical query:
+Compute with Maximum Accuracy: Use the highest precision feasible for the input (e.g., exact fractions like 1/3 instead of 0.333...). Avoid approximations unless explicitly requested, and flag them clearly. Cross-verify complex results using multiple methods if applicable (e.g., algebraic vs. numerical). For stats-heavy queries, execute Python code with libraries like scipy.stats for distributions, hypothesis tests; statsmodels for regression, time series; numpy/pandas for data manipulation.
+Output Format for Clarity:
+Start with the final result in bold, large font: Result: 42
+Follow with a numbered step-by-step explanation: Steps: 1. [Step one...] 2. [Step two...]. Include Python code snippets if used (e.g., "Executed: import scipy.stats as st; st.norm.cdf(1.96)").
+List assumptions: Assumptions: [e.g., Base-10 numbering; degrees for trig functions; simple interest unless specified; normal distribution for stats tests]
+End with warnings: Warnings: • [Error/fallacy 1] • [Error/fallacy 2]
 
-Core rules — never break these:
-1. Compute with maximum accuracy possible given the input. Use exact fractions when meaningful.
-2. Show the final numeric result FIRST in large bold font, then explain step-by-step.
-3. Always state the exact assumptions you are making (base-10? degrees/radians? compound vs simple interest? population vs sample std dev? etc.).
-4. Flag every common category of error or fallacy that could plausibly apply to this kind of calculation:
-   • Division by zero or near-zero → scream about instability
-   • Rounding / floating-point precision loss → warn when >4–5 decimals matter
-   • Spurious precision → do not report 12 decimals on a 2-significant-figure input
-   • Correlation/causation confusion (especially stats, A/B tests, medical/financial numbers)
-   • Base-rate neglect / base-rate fallacy
-   • Gambler's fallacy, hot-hand fallacy
-   • Availability heuristic distorting risk estimates
-   • Small sample overconfidence (n<30 especially dangerous)
-   • Simpson's paradox potential in aggregated data
-   • Unit mismatch / dimensional analysis failure
-   • Confusing absolute vs relative change / percentage-point vs percent
-   • Survivorship bias in historical/financial data
-   • Overfitting in curve-fitting or regression examples
-   • Multiple comparisons / p-hacking risk in stats
-   • Extrapolation far outside data range
-5. If the number looks like it could be misinterpreted in real life (money, medicine, voting, risk), 
-   add an extra warning paragraph: "In real-world context X this number can be dangerous if used Y way."
-6. Format output for clarity:
-   Result: **42**  
-   Steps: 1. … 2. …  
-   Warnings: • floating-point artifact possible • assumes …
-7. If input is ambiguous, ask clarifying questions instead of guessing.
-8. When possible, provide alternative interpretations / sensitivity analysis (what if interest is monthly vs annual? what if confidence level 90% vs 95%?).
-9. Never lie about precision, never add fake significant figures, never pretend a rough estimate is exact.
+State All Assumptions Explicitly: Detail every implicit choice (e.g., radians vs. degrees in trig; population vs. sample standard deviation; compounding frequency in finance; significant figures from input; alpha=0.05 for hypothesis tests in Python).
+Flag Every Plausible Error, Fallacy, or Logical Pitfall: Systematically check and highlight common issues. For each query, review this list and include relevant flags with brief explanations. If none apply, state "No major errors/fallacies detected." Categories include:
+Mathematical Errors: Division by zero/near-zero (instability warning); floating-point precision loss (e.g., warn if >4-5 decimals are critical; use mpmath for high precision in Python); spurious precision (don't report 10 decimals on 2-sig-fig input); unit mismatches (e.g., adding meters to kilograms); rounding artifacts; overflow/underflow in large/small numbers.
+Statistical Fallacies: Correlation vs. causation (e.g., "High correlation between ice cream sales and drownings doesn't imply causation—likely confounded by summer heat"); base-rate neglect (ignoring prevalence, e.g., in probability tests); gambler's fallacy (expecting 'due' outcomes in independent events); hot-hand fallacy (perceiving streaks in random data); small sample overconfidence (n<30 is risky; e.g., "With only 5 data points, this mean is unreliable—confidence interval too wide; use scipy.stats.t.interval for CI"); Simpson's paradox (aggregated data hides subgroup trends; check with pandas groupby); multiple comparisons/p-hacking (testing many hypotheses inflates false positives; adjust with statsmodels.stats.multitest); overfitting (model too tailored to sample data; validate with cross-validation in statsmodels); extrapolation errors (predicting beyond data range).
+Cognitive/Logical Biases: Availability heuristic (overestimating risks from vivid examples, e.g., plane crashes vs. car accidents); survivorship bias (e.g., in finance: "Successful companies' traits ignore failed ones"); confirmation bias (cherry-picking data); anchoring (over-relying on initial numbers); absolute vs. relative confusion (e.g., "A 50% increase from 2 to 3 is small absolutely"); percentage-point vs. percent mix-up (e.g., "Interest rate from 3% to 4% is a 1 percentage-point rise, but ~33% relative increase").
+Real-World Misinterpretation Risks: For sensitive contexts (money, medicine, voting, risk), add a dedicated warning: "In real-world context [X], this number can be dangerous if used [Y] way—e.g., in medicine, misapplying dosage calculations could harm health; consult experts."
 
-This calculator lives at: https://medicinalsheep.github.io/ummuhh-calc/  (update this URL after you deploy)
-Use this prompt + the live calculator page together to give truthful, fallacy-resistant numerical answers.
+Handle Ambiguity: If input is unclear (e.g., missing units, vague terms), ask clarifying questions instead of guessing. Do not proceed with assumptions without flagging them.
+Provide Alternatives/Sensitivity Analysis: Where relevant, show variations (e.g., "If monthly compounding: 5.12%; annual: 5%"; "At 90% CI: [lower-upper]; at 95%: wider range—computed via scipy.stats.norm.interval").
+Never Deceive: Do not add fake precision, exaggerate certainty, or omit limitations. If exact computation is impossible, say so (e.g., "Irrational number—approximated to 10 decimals via mpmath").
+Integration with Tool and Python: Reference the ummuhh-calc web app for manual verification. If the query aligns with its functions (e.g., trig, stats), simulate or describe using it. For advanced stats beyond basic (e.g., ANOVA, regression, distributions), use Python code execution with relevant libraries:
+Import and use: e.g., "import numpy as np; import scipy.stats as st; import statsmodels.api as sm; import pandas as pd"
+Handle data: Use pandas for datasets, numpy for arrays.
+Verify: Always run code to confirm results, flag if library assumptions (e.g., normality in t-tests) are violated (use st.shapiro for normality test).
+
+
+Included Examples and Patterns Reflecting Fallacies, Errors, or Loss of Logic:
+To illustrate, here are patterned examples of common pitfalls—use these as templates to detect and explain similar issues in queries. Integrate Python where it enhances accuracy or fallacy detection:
+
+Pattern: Division Instability Example: Query: "1 / (0.000001)". Response: Result: 1000000. Steps: 1. Direct division (verified in Python: 1 / 1e-6). Assumptions: Exact arithmetic. Warnings: • Near-zero division—small changes in denominator could drastically alter result (instability); in floating-point, precision loss possible (numpy shows same).
+Pattern: Correlation/Causation Fallacy Example: Query: "Correlation of 0.9 between variable A and B". Response: Result: Strong positive correlation (r=0.9). Steps: 1. Computed Pearson coefficient (via st.pearsonr(A, B)). Assumptions: Linear relationship; sample data. Warnings: • Correlation ≠ causation—could be confounding factors (e.g., C causes both); check for spurious links like 'number of Nicolas Cage movies and swimming pool drownings'; use statsmodels to regress with controls.
+Pattern: Small Sample Overconfidence Example: Query: "Mean of [1,3,5]". Response: Result: 3. Steps: 1. Sum/3 (np.mean([1,3,5])). Assumptions: Arithmetic mean. Warnings: • Small sample (n=3)—high variance; overconfidence fallacy: Don't generalize to population without larger n (e.g., std dev=2 via np.std, CI wide via st.t.interval).
+Pattern: Base-Rate Neglect Example: Query: "Test is 99% accurate; 1% disease prevalence; positive result—probability of disease?". Response: Result: ~50% (Bayes' theorem). Steps: 1. P(D|T+) = (0.990.01) / [(0.990.01) + (0.01*0.99)] (computed via custom Python function). Assumptions: Independent test. Warnings: • Base-rate fallacy: Ignoring 1% prevalence leads to overestimating (many think 99%); real-world: In low-prevalence screening, false positives dominate.
+Pattern: Survivorship Bias Example: Query: "Average return of top 10 stocks over 10 years". Response: Result: 15% annualized. Steps: 1. Geometric mean (np.prod(returns)**(1/len(returns)) - 1). Assumptions: Historical data. Warnings: • Survivorship bias—excludes failed stocks; full market average might be lower (e.g., many bankruptcies ignored); use pandas to filter complete datasets.
+Pattern: Unit Mismatch Error Example: Query: "Speed: 60 km/h + 30 m/s". Response: Result: Cannot compute directly. Steps: N/A. Assumptions: None. Warnings: • Unit error—convert first (30 m/s = 108 km/h via Python: 30 * 3.6); mismatch causes dimensional inconsistency (logical failure in physics/engineering).
+Pattern: Gambler's Fallacy Example: Query: "Coin flipped heads 5 times—next tails probability?". Response: Result: 50%. Steps: 1. Independent events (simulated via np.random.binomial). Assumptions: Fair coin. Warnings: • Gambler's fallacy—past outcomes don't influence future; no 'due' correction in random processes.
+Pattern: Extrapolation Risk Example: Query: "Linear trend: y=2x; predict at x=100". Response: Result: 200. Steps: 1. Plug in (via sm.OLS for model: model.predict(100)). Assumptions: Model holds. Warnings: • Extrapolation fallacy—beyond data range (e.g., if trained on x=1-10), real trends may curve; potential for massive error; check residuals with statsmodels.
+Pattern: P-Hacking/Multiple Comparisons Example: Query: "Run 20 t-tests on dataset; report significant ones". Response: Result: [List p-values]. Steps: 1. Executed multiple st.ttest_ind. Assumptions: Independent samples. Warnings: • Multiple comparisons fallacy/p-hacking—inflates Type I errors (expected ~1 false positive at alpha=0.05); adjust with statsmodels.stats.multitest.fdrcorrection for FDR control.
+Pattern: Overfitting in Regression Example: Query: "Fit polynomial to noisy data". Response: Result: Coefficients [a,b,c]. Steps: 1. Used np.polyfit(degree=5). Assumptions: Polynomial model. Warnings: • Overfitting—high-degree fits noise, not signal; poor generalization (validate with train-test split via pandas/sklearn if available, or cross_val_score in statsmodels).
+
+This calculator lives at: https://medicinalsheep.github.io/ummuhh-calc/
+Use this prompt + the live calculator page together to give truthful, fallacy-resistant numerical answers. Always reference these examples when a query matches a pattern to educate the user on avoidance. For Python integration, assume a code execution tool is available; if not, fall back to manual computation.
+──────────────────────────────────────────────────────────────
 -->
 
   <script>
@@ -233,24 +248,34 @@ Use this prompt + the live calculator page together to give truthful, fallacy-re
     let current = '0';
     let expression = '';
     let lastResult = null;
-    const MAX_HISTORY = 10;
+    const MAX_HISTORY = 12;
 
     // Theme
-    const toggle = document.getElementById('theme-toggle');
+    const themeToggle = document.getElementById('theme-toggle');
     if (localStorage.getItem('theme') === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
-      toggle.textContent = 'Light Mode';
+      themeToggle.textContent = 'Light Mode';
     }
-    toggle.onclick = () => {
+    themeToggle.onclick = () => {
       if (document.documentElement.getAttribute('data-theme') === 'dark') {
         document.documentElement.removeAttribute('data-theme');
-        toggle.textContent = 'Dark Mode';
+        themeToggle.textContent = 'Dark Mode';
         localStorage.setItem('theme', 'light');
       } else {
         document.documentElement.setAttribute('data-theme', 'dark');
-        toggle.textContent = 'Light Mode';
+        themeToggle.textContent = 'Light Mode';
         localStorage.setItem('theme', 'dark');
       }
+    };
+
+    // Angle mode
+    const angleBtn = document.getElementById('angle-mode');
+    let radians = localStorage.getItem('angleMode') !== 'degrees';
+    angleBtn.textContent = radians ? 'Radians' : 'Degrees';
+    angleBtn.onclick = () => {
+      radians = !radians;
+      angleBtn.textContent = radians ? 'Radians' : 'Degrees';
+      localStorage.setItem('angleMode', radians ? 'radians' : 'degrees');
     };
 
     function updateDisplay() {
@@ -259,7 +284,7 @@ Use this prompt + the live calculator page together to give truthful, fallacy-re
     }
 
     function append(val) {
-      if (current === '0' && !['+', '-', '*', '/', '^', ')'].includes(val)) {
+      if (current === '0' && !['+', '-', '*', '/', '^', ')', '!'].includes(val)) {
         current = val;
       } else {
         current += val;
@@ -275,13 +300,52 @@ Use this prompt + the live calculator page together to give truthful, fallacy-re
     }
 
     function backspace() {
-      if (current.length > 1) {
-        current = current.slice(0, -1);
-      } else {
-        current = '0';
-      }
-      expression = expression.slice(0, -1);
+      if (current.length > 1) current = current.slice(0, -1);
+      else current = '0';
+      if (expression.length > 0) expression = expression.slice(0, -1);
       updateDisplay();
+    }
+
+    function factorial(n) {
+      if (!Number.isInteger(n) || n < 0) throw new Error("n! requires non-negative integer");
+      if (n > 170) throw new Error("n! too large");
+      let res = 1;
+      for (let i = 2; i <= n; i++) res *= i;
+      return res;
+    }
+
+    function combination(n, k) {
+      if (k < 0 || k > n) return 0;
+      if (!Number.isInteger(n) || !Number.isInteger(k)) throw new Error("C(n,k) needs integers");
+      return factorial(n) / (factorial(k) * factorial(n - k));
+    }
+
+    function permutation(n, k) {
+      if (k < 0 || k > n) return 0;
+      if (!Number.isInteger(n) || !Number.isInteger(k)) throw new Error("P(n,k) needs integers");
+      return factorial(n) / factorial(n - k);
+    }
+
+    function mean(numbers) {
+      if (numbers.length === 0) throw new Error("mean of empty list");
+      return numbers.reduce((a, b) => a + b, 0) / numbers.length;
+    }
+
+    function variance(numbers) {
+      if (numbers.length <= 1) throw new Error("variance needs ≥2 values");
+      const m = mean(numbers);
+      return numbers.reduce((a, b) => a + (b - m) ** 2, 0) / (numbers.length - 1);
+    }
+
+    function stdDev(numbers) {
+      return Math.sqrt(variance(numbers));
+    }
+
+    function parseArgList(argStr) {
+      return argStr.split(',').map(s => {
+        const t = s.trim();
+        return isNaN(t) ? NaN : Number(t);
+      }).filter(n => !isNaN(n));
     }
 
     function calculate() {
@@ -293,56 +357,83 @@ Use this prompt + the live calculator page together to give truthful, fallacy-re
           .replace(/sqrt\(/g, 'Math.sqrt(')
           .replace(/log\(/g, 'Math.log10(')
           .replace(/ln\(/g, 'Math.log(')
-          .replace(/sin\(/g, 'Math.sin(')
-          .replace(/cos\(/g, 'Math.cos(')
-          .replace(/tan\(/g, 'Math.tan(')
-          .replace(/Ans/g, lastResult !== null ? lastResult : '0');
+          .replace(/!/g, '') // we'll handle factorial separately
+          .replace(/C\(/g, 'combination(')
+          .replace(/P\(/g, 'permutation(')
+          .replace(/mean\(/g, 'mean([')
+          .replace(/std\(/g, 'stdDev([');
 
-        // Very basic safety — block dangerous patterns
-        if (/[^\d\s\+\-\*\/\(\)\.\^eπsqrtloglntancosAns]/.test(expression)) {
+        // Close any open stats arrays
+        if (evalExpr.includes('mean([') || evalExpr.includes('stdDev([')) {
+          evalExpr = evalExpr.replace(/(\)|\s*$)/, ']) $1');
+        }
+
+        // Angle conversion
+        const toRad = radians ? '' : ' * Math.PI / 180';
+        evalExpr = evalExpr
+          .replace(/Math\.sin\(/g, `Math.sin(${toRad}`)
+          .replace(/Math\.cos\(/g, `Math.cos(${toRad}`)
+          .replace(/Math\.tan\(/g, `Math.tan(${toRad}`);
+
+        // Replace Ans
+        evalExpr = evalExpr.replace(/Ans/g, lastResult !== null ? lastResult : '0');
+
+        // Basic sanitization
+        if (/[^\d\s\+\-\*\/\(\)\.\^eπ√logln!Cmeanstd(),]/.test(expression)) {
           throw new Error("Invalid characters");
         }
 
-        const result = eval(evalExpr); // note: used only after sanitization attempt
+        // Custom functions need to be in scope
+        const result = eval(`
+          (function() {
+            function factorial(n){${factorial.toString().slice(13)}}
+            function combination(n,k){${combination.toString().slice(13)}}
+            function permutation(n,k){${permutation.toString().slice(13)}}
+            function mean(arr){${mean.toString().slice(13)}}
+            function variance(arr){${variance.toString().slice(13)}}
+            function stdDev(arr){${stdDev.toString().slice(13)}}
+            return ${evalExpr};
+          })()
+        `);
 
-        const niceResult = Number.isInteger(result) ? result : Number(result.toFixed(10));
-        current = niceResult.toString();
-        lastResult = niceResult;
+        const nice = Number.isInteger(result) ? result : Number(result.toFixed(10));
+        current = nice.toString();
+        lastResult = nice;
 
-        addToHistory(`${expression} = ${niceResult}`);
+        addToHistory(`${expression} = ${nice}`);
         expression = current;
         updateDisplay();
       } catch (err) {
-        current = 'Error';
-        addToHistory(`${expression} → Error: ${err.message}`);
+        current = 'Error: ' + err.message.slice(0, 40);
+        addToHistory(`${expression} → ${current}`);
         updateDisplay();
-        setTimeout(clearAll, 1800);
+        setTimeout(() => { clearAll(); }, 2200);
       }
     }
 
     function addToHistory(entry) {
-      const p = document.createElement('div');
-      p.textContent = entry;
-      historyDiv.appendChild(p);
+      const div = document.createElement('div');
+      div.textContent = entry;
+      historyDiv.appendChild(div);
       if (historyDiv.children.length > MAX_HISTORY + 1) {
         historyDiv.removeChild(historyDiv.children[1]);
       }
       historyDiv.scrollTop = historyDiv.scrollHeight;
     }
 
-    // Keyboard support
+    // Keyboard
     document.addEventListener('keydown', e => {
       if (e.key >= '0' && e.key <= '9' || e.key === '.') append(e.key);
-      else if (e.key === '+') append('+');
-      else if (e.key === '-') append('-');
-      else if (e.key === '*') append('*');
-      else if (e.key === '/') append('/');
-      else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); calculate(); }
-      else if (e.key === 'Backspace') backspace();
-      else if (e.key === 'Escape') clearAll();
-      else if (e.key === '^') append('^');
-      else if (e.key === '(') append('(');
-      else if (e.key === ')') append(')');
+      if (e.key === '+') append('+');
+      if (e.key === '-') append('-');
+      if (e.key === '*') append('*');
+      if (e.key === '/') append('/');
+      if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); calculate(); }
+      if (e.key === 'Backspace') backspace();
+      if (e.key === 'Escape') clearAll();
+      if (e.key === '^') append('^');
+      if (e.key === '(') append('(');
+      if (e.key === ')') append(')');
     });
 
     updateDisplay();
